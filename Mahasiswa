@@ -1,0 +1,155 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <fstream>
+#include <iomanip>
+using namespace std;
+
+// Struktur untuk menyimpan data mahasiswa
+struct Mahasiswa {
+    string nim;
+    string nama;
+    float nilaiAkhir;
+};
+
+// Fungsi untuk menambahkan data mahasiswa
+void tambahData(vector<Mahasiswa>& data) {
+    int jumlah;
+    cout << "Masukkan jumlah mahasiswa: ";
+    cin >> jumlah;
+    for (int i = 0; i < jumlah; i++) {
+        Mahasiswa mhs;
+        cout << "Masukkan NIM Mahasiswa ke-" << i + 1 << ": ";
+        cin >> mhs.nim;
+        cout << "Masukkan Nama Mahasiswa ke-" << i + 1 << ": ";
+        cin.ignore();
+        getline(cin, mhs.nama);
+        cout << "Masukkan Nilai Akhir Mahasiswa ke-" << i + 1 << ": ";
+        cin >> mhs.nilaiAkhir;
+        data.push_back(mhs);
+    }
+    cout << "Data berhasil ditambahkan!" << endl;
+}
+
+// Fungsi untuk menampilkan semua data mahasiswa
+void tampilkanData(const vector<Mahasiswa>& data) {
+    if (data.empty()) {
+        cout << "Data mahasiswa kosong!" << endl;
+        return;
+    }
+    cout << left << setw(10) << "NIM" << setw(20) << "Nama" << setw(10) << "Nilai Akhir" << endl;
+    for (const auto& mhs : data) {
+        cout << left << setw(10) << mhs.nim << setw(20) << mhs.nama << setw(10) << mhs.nilaiAkhir << endl;
+    }
+}
+
+// Fungsi untuk mencari mahasiswa berdasarkan NIM
+void cariMahasiswa(const vector<Mahasiswa>& data) {
+    string nim;
+    cout << "Masukkan NIM yang ingin dicari: ";
+    cin >> nim;
+    for (const auto& mhs : data) {
+        if (mhs.nim == nim) {
+            cout << "Data ditemukan:" << endl;
+            cout << "NIM: " << mhs.nim << ", Nama: " << mhs.nama << ", Nilai Akhir: " << mhs.nilaiAkhir << endl;
+            return;
+        }
+    }
+    cout << "Data tidak ditemukan!" << endl;
+}
+
+// Fungsi untuk mengurutkan data berdasarkan nilai akhir secara descending
+void urutkanData(vector<Mahasiswa>& data) {
+    for (size_t i = 0; i < data.size() - 1; i++) {
+        for (size_t j = 0; j < data.size() - i - 1; j++) {
+            if (data[j].nilaiAkhir < data[j + 1].nilaiAkhir) {
+                swap(data[j], data[j + 1]);
+            }
+        }
+    }
+    cout << "Data berhasil diurutkan berdasarkan Nilai Akhir (descending)." << endl;
+}
+
+// Fungsi untuk menyimpan data ke file
+void simpanKeBerkas(const vector<Mahasiswa>& data) {
+    ofstream file("data_mahasiswa.txt");
+    if (!file) {
+        cout << "Gagal menyimpan data ke berkas!" << endl;
+        return;
+    }
+    for (const auto& mhs : data) {
+        file << mhs.nim << "," << mhs.nama << "," << mhs.nilaiAkhir << endl;
+    }
+    file.close();
+    cout << "Data berhasil disimpan ke berkas." << endl;
+}
+
+// Fungsi untuk membaca data dari file
+void bacaDariBerkas(vector<Mahasiswa>& data) {
+    ifstream file("data_mahasiswa.txt");
+    if (!file) {
+        cout << "Gagal membaca data dari berkas!" << endl;
+        return;
+    }
+    data.clear();
+    Mahasiswa mhs;
+    string line;
+    while (getline(file, line)) {
+        size_t pos1 = line.find(',');
+        size_t pos2 = line.rfind(',');
+        mhs.nim = line.substr(0, pos1);
+        mhs.nama = line.substr(pos1 + 1, pos2 - pos1 - 1);
+        mhs.nilaiAkhir = stof(line.substr(pos2 + 1));
+        data.push_back(mhs);
+    }
+    file.close();
+    cout << "Data berhasil dibaca dari berkas." << endl;
+}
+
+// Fungsi utama
+int main() {
+    vector<Mahasiswa> data;
+    int pilihan;
+
+    do {
+        cout << "\nMenu Utama:" << endl;
+        cout << "1. Tambah Data Mahasiswa" << endl;
+        cout << "2. Tampilkan Semua Data" << endl;
+        cout << "3. Cari Data Mahasiswa" << endl;
+        cout << "4. Urutkan Data" << endl;
+        cout << "5. Simpan Data ke Berkas" << endl;
+        cout << "6. Baca Data dari Berkas" << endl;
+        cout << "7. Keluar" << endl;
+        cout << "Pilih opsi (1-7): ";
+        cin >> pilihan;
+
+        switch (pilihan) {
+        case 1:
+            tambahData(data);
+            break;
+        case 2:
+            tampilkanData(data);
+            break;
+        case 3:
+            cariMahasiswa(data);
+            break;
+        case 4:
+            urutkanData(data);
+            break;
+        case 5:
+            simpanKeBerkas(data);
+            break;
+        case 6:
+            bacaDariBerkas(data);
+            break;
+        case 7:
+            cout << "Keluar dari program." << endl;
+            break;
+        default:
+            cout << "Pilihan tidak valid!" << endl;
+            break;
+        }
+    } while (pilihan != 7);
+
+    return 0;
+}
